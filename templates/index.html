@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Tareas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <h1>Lista de Tareas</h1>
+    <a href="/agregar">Agregar Tarea</a>
+    <a href="/?filtro=todas">Todas las Tareas</a> |
+    <a href="/?filtro=completadas">Tareas Completadas</a> |
+    <a href="/?filtro=pendientes">Tareas Pendientes</a>
+    <ul>
+        {% for tarea in tareas %}
+        <li>
+            {{ tarea.descripcion }} - {{ tarea.fecha_inicio.strftime('%Y-%m-%d') }}
+            {% if tarea.completada %}Completada{% else %}Pendiente{% endif %}
+            <a href="/completar/{{ tarea.id }}"><i class="fas fa-check"></i></a>
+            <a href="/modificar/{{ tarea.id }}"><i class="fas fa-edit"></i></a>
+            <a href="/eliminar/{{ tarea.id }}"><i class="fas fa-trash"></i></a>
+        </li>
+        {% else %}
+            <li>No hay tareas disponibles</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

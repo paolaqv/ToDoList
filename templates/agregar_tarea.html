@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Agregar Tarea</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <h2>Agregar Tarea</h2>
+    <form action="/agregar" method="post">
+        <label for="descripcion">Tarea:</label>
+        <input type="text" id="descripcion" name="descripcion">
+
+        <label for="fecha_inicio">Fecha Inicio:</label>
+        <input type="date" id="fecha_inicio" name="fecha_inicio">
+        
+        <input type="submit" value="Guardar">
+        <a href="/">Cancelar</a>
+    </form>
+</body>
+</html>
+

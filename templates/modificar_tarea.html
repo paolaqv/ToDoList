@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Modificar Tarea</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+</head>
+<body>
+    <h2>Modificar Tarea</h2>
+    <form action="{{ url_for('procesar_modificar', id=tarea.id) }}" method="post">
+        <label for="descripcion">Tarea:</label>
+        <input type="text" id="descripcion" name="descripcion" value="{{ tarea.descripcion }}">
+        <label for="fecha_inicio">Fecha Inicio:</label>
+        <input type="date" id="fecha_inicio" name="fecha_inicio" value="{{ tarea.fecha_inicio.strftime('%Y-%m-%d') }}">
+        <input type="submit" value="Modificar">
+        <a href="/">Cancelar</a>
+    </form>
+</body>
+</html>
