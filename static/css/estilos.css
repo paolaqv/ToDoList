@@ -1,31 +1,60 @@
-/* static/css/estilos.css */
 body {
-    font-family: Arial, sans-serif;
-}
-
-header {
-    background-color: #5fb5dc;
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f4f8;
+    color: #333;
     padding: 20px;
-    text-align: center;
 }
 
 h1 {
-    color: #333;
-}
-
-form {
-    margin-top: 20px;
-}
-
-input[type="text"],
-input[type="date"],
-input[type="submit"] {
-    padding: 10px;
-    margin: 5px 0;
-    display: block;
+    color: #6a4f4b;
 }
 
 a {
-    display: inline-block;
-    margin-top: 20px;
+    color: #6a4f4b;
+    text-decoration: none;
+    margin-right: 15px;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background-color: #ffe5d9;
+    color: #333;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
+}
+
+li:hover {
+    background-color: #fcd5ce;
+}
+
+i {
+    margin-left: 10px;
+    color: #a8a8a8;
+}
+
+i:hover {
+    color: #333;
+}
+
+.fa-check {
+    color: #4caf50;
+}
+
+.fa-edit {
+    color: #ffeb3b;
+}
+
+.fa-trash {
+    color: #f44336;
 }

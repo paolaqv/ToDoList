@@ -6,5 +6,5 @@ class Tarea:
     def __init__(self, id, descripcion, fecha_inicio, completada=False):
         self.id = id
         self.descripcion = descripcion
-        self.fecha_inicio = fecha_inicio  # Fecha de inicio de la tarea
+        self.fecha_inicio = fecha_inicio  
         self.completada = completada
