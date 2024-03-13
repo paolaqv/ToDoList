@@ -1,68 +1,129 @@
-#
-from flask import render_template, request, redirect, url_for
-from app import app
-from .gestion_tareas import gestor
+from flask import render_template, request, redirect, url_for, flash
+from datetime import datetime, timedelta
+from . import app, db
+from .modelos import Usuario, Categoria, Estado, RegistroTarea
 
 
 @app.route('/')
 def index():
-    # Obtenemos el parámetro 'filtro' de la URL,
-    # si no existe, se usa 'todas' como predeterminado.
     filtro = request.args.get('filtro', 'todas')
-     # Si el filtro es 'completadas', obtenemos solo las tareas completadas.
-    if filtro == 'completadas':
-        tareas = gestor.obtener_tareas(completadas=True)
-                # Si el filtro es 'pendientes', obtenemos solo las tareas pendientes.
-    elif filtro == 'pendientes':
-        tareas = gestor.obtener_tareas(completadas=False)
-    else:
-        #sino hay filtro o es todas, se moestrara todas las tareas
-        tareas = gestor.obtener_tareas()
+    categorias = Categoria.query.all()
     
-    #render_template toma index.html y agrega los datos de tareas cada vez que lo usas con ayudad de jinja2.
-    return render_template('index.html', tareas=tareas)
+    if filtro == 'pendientes':
+        tareas = RegistroTarea.query.filter_by(estado_id=Estado.query.filter_by(nombre='Pendiente').first().id).all()
+    elif filtro == 'en_progreso':
+        tareas = RegistroTarea.query.filter_by(estado_id=Estado.query.filter_by(nombre='En Progreso').first().id).all()
+    elif filtro == 'completadas':
+        tareas = RegistroTarea.query.filter_by(estado_id=Estado.query.filter_by(nombre='Completada').first().id).all()
+    else:
+        tareas = RegistroTarea.query.all()
+    
+    return render_template('index.html', categorias=categorias, tareas=tareas, filtro_actual=filtro)
 
-
-@app.route('/agregar', methods=['GET', 'POST'])
-def agregar():
-    # Si el método es POST, significa que el formulario ha sido enviado.
+@app.route('/tarea/nueva', methods=['GET', 'POST'])
+def nueva_tarea():
     if request.method == 'POST':
-        #se toma los datos
         descripcion = request.form['descripcion']
         fecha_inicio = request.form['fecha_inicio']
-        #y se los manda al metodo agregar_tarea
-        gestor.agregar_tarea(descripcion, fecha_inicio)
-        #y se lo redirige a index
+        fecha_fin = request.form.get('fecha_fin', None)
+        categoria_id = int(request.form['categoria_id'])
+        estado_id = int(request.form['estado_id'])
+        usuario_id = 1 
+
+        nueva_tarea = RegistroTarea(
+            descripcion=descripcion,
+            fecha_inicio=datetime.strptime(fecha_inicio, '%Y-%m-%d'),
+            fecha_fin=datetime.strptime(fecha_fin, '%Y-%m-%d') if fecha_fin else None,
+            categoria_id=categoria_id,
+            estado_id=estado_id,
+            usuario_id=usuario_id
+        )
+
+        db.session.add(nueva_tarea)
+        db.session.commit()
+        flash('Tarea creada con éxito', 'success')
         return redirect(url_for('index'))
-    #si es get se muestra el formulario
-    return render_template('agregar_tarea.html')
 
+    categorias = Categoria.query.all()
+    estados = Estado.query.all()
+    return render_template('agregar_tarea.html', categorias=categorias, estados=estados)
 
-@app.route('/eliminar/<int:id>')
-def eliminar(id):
-    gestor.eliminar_tarea(id)
+@app.route('/tarea/editar/<int:tarea_id>', methods=['GET', 'POST'])
+def editar_tarea(tarea_id):
+    tarea = RegistroTarea.query.get_or_404(tarea_id)
+
+    if request.method == 'POST':
+        tarea.descripcion = request.form['descripcion']
+        tarea.fecha_inicio = datetime.strptime(request.form['fecha_inicio'], '%Y-%m-%d')
+        tarea.fecha_fin = datetime.strptime(request.form['fecha_fin'], '%Y-%m-%d') if request.form['fecha_fin'] else None
+        tarea.categoria_id = int(request.form['categoria_id'])
+        tarea.estado_id = int(request.form['estado_id'])
+
+        db.session.commit()
+        flash('Tarea actualizada con éxito', 'success')
+        return redirect(url_for('index'))
+
+    categorias = Categoria.query.all()
+    estados = Estado.query.all()
+    return render_template('modificar_tarea.html', tarea=tarea, categorias=categorias, estados=estados)
+
+@app.route('/eliminar/<int:tarea_id>')
+def eliminar_tarea(tarea_id):
+    tarea = RegistroTarea.query.get_or_404(tarea_id)
+    
+    # no permitir eliminar si la tarea está completada
+    if tarea.estado.nombre == "Completada":
+        flash('Las tareas completadas no pueden ser eliminadas.', 'warning')
+        return redirect(url_for('index'))
+    
+    db.session.delete(tarea)
+    db.session.commit()
+    flash('Tarea eliminada con éxito.', 'success')
     return redirect(url_for('index'))
 
 
-@app.route('/completar/<int:id>')
-def completar(id):
-    gestor.marcar_completada(id)
+@app.route('/categoria/nueva', methods=['GET', 'POST'])
+def nueva_categoria():
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        nueva_categoria = Categoria(nombre=nombre)
+        db.session.add(nueva_categoria)
+        db.session.commit()
+        return redirect(url_for('categorias'))
+    return render_template('nueva_categoria.html')
+
+@app.route('/categorias')
+def categorias():
+    todas_categorias = Categoria.query.all()
+    return render_template('categorias.html', categorias=todas_categorias)
+
+
+@app.route('/categoria/editar/<int:id>', methods=['GET', 'POST'])
+def editar_categoria(id):
+    categoria = Categoria.query.get_or_404(id)
+    if request.method == 'POST':
+        categoria.nombre = request.form['nombre']
+        db.session.commit()
+        return redirect(url_for('categorias'))
+    return render_template('editar_categoria.html', categoria=categoria)
+
+
+@app.route('/categoria/eliminar/<int:id>')
+def eliminar_categoria(id):
+    categoria = Categoria.query.get_or_404(id)
+    db.session.delete(categoria)
+    db.session.commit()
+    return redirect(url_for('categorias'))
+
+
+@app.route('/tarea/cambiar_estado/<int:tarea_id>/<nuevo_estado>')
+def cambiar_estado_tarea(tarea_id, nuevo_estado):
+    tarea = RegistroTarea.query.get_or_404(tarea_id)
+    estado = Estado.query.filter_by(nombre=nuevo_estado).first()
+    if estado:
+        tarea.estado_id = estado.id
+        db.session.commit()
+        flash(f'Estado de la tarea actualizado a {nuevo_estado}', 'success')
+    else:
+        flash('Estado no válido', 'danger')
     return redirect(url_for('index'))
-
-
-@app.route('/modificar/<int:id>', methods=['GET'])
-def mostrar_modificar(id):
-    tarea = gestor.obtener_tarea_por_id(id) 
-    if tarea:
-        return render_template('modificar_tarea.html', tarea=tarea)
-    return redirect(url_for('index'))
-
-
-@app.route('/modificar/<int:id>', methods=['POST'])
-def procesar_modificar(id):
-    nueva_descripcion = request.form['descripcion']
-    nueva_fecha_inicio = request.form['fecha_inicio']
-    gestor.modificar_tarea(id, nueva_descripcion, nueva_fecha_inicio)
-    return redirect(url_for('index'))
-
-

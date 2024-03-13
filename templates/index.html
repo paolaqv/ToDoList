@@ -10,38 +10,44 @@
     </div>
     <div class="menu-container">
         <ul class="menu">
-            <li><a href="/agregar">Agregar Tarea</a></li>
+            <li><a href="{{ url_for('nueva_tarea') }}">Agregar Nueva Tarea</a></li>
+            <li><a href="/categorias">Categorías</a></li>
             <li><a href="/?filtro=todas">Todas las Tareas</a></li>
             <li><a href="/?filtro=completadas">Tareas Completadas</a></li>
             <li><a href="/?filtro=pendientes">Tareas Pendientes</a></li>
+            <li><a href="/?filtro=en_progreso">Ver Tareas En Progreso</a></li>
         </ul>
     </div>
     <div class="container">
-        <ul class="lista-tareas">
-            {% for tarea in tareas %}
-            <li>
-                <div class="tarea-descripcion">{{ tarea.descripcion }}</div>
-                <div class="tarea-fecha">{{ tarea.fecha_inicio.strftime('%Y-%m-%d') }}</div>
-                <div class="tarea-estado">
-                    {% if tarea.completada %}
-                        <span class="completada">Completada</span>
-                    {% else %}
-                        <span class="pendiente">
-
-Pendiente</span>
-{% endif %}
-</div>
-<div class="tarea-acciones">
-<a href="/completar/{{ tarea.id }}"><i class="fas fa-check" title="Marcar como completada"></i></a>
-<a href="/modificar/{{ tarea.id }}"><i class="fas fa-edit" title="Modificar tarea"></i></a>
-<a href="/eliminar/{{ tarea.id }}"><i class="fas fa-trash" title="Eliminar tarea"></i></a>
-</div>
-</li>
-{% else %}
-<li>No hay tareas disponibles</li>
-{% endfor %}
-</ul>
-</div>
+        {% for categoria in categorias %}
+            <h2>{{ categoria.nombre }}</h2>
+            <ul>
+                {% for tarea in tareas %} 
+                {% if tarea.categoria_id == categoria.id %}
+                    <li>
+                        <p>{{ tarea.descripcion }} - {{ tarea.fecha_inicio.strftime('%Y-%m-%d') }}</p>
+                        <p>Estado: {{ tarea.estado.nombre }}</p>
+                        <a href="{{ url_for('editar_tarea', tarea_id=tarea.id) }}"><i class="fas fa-edit"></i> Editar</a>
+                        <a href="{{ url_for('eliminar_tarea', tarea_id=tarea.id) }}" onclick="return confirm('¿Estás seguro?');"><i class="fas fa-trash"></i> Eliminar</a>
+                        {% if tarea.estado.nombre != "Completada" %}
+                            <a href="{{ url_for('cambiar_estado_tarea', tarea_id=tarea.id, nuevo_estado='Completada') }}"><i class="fas fa-check"></i> Marcar como Completada</a>
+                        {% endif %}
+                        {% if tarea.estado.nombre != "En Progreso" %}
+                            <a href="{{ url_for('cambiar_estado_tarea', tarea_id=tarea.id, nuevo_estado='En Progreso') }}"><i class="fas fa-running"></i> Marcar como En Progreso</a>
+                        {% endif %}
+                        {% if tarea.estado.nombre != "Pendiente" %}
+                            <a href="{{ url_for('cambiar_estado_tarea', tarea_id=tarea.id, nuevo_estado='Pendiente') }}"><i class="fas fa-hourglass-start"></i> Marcar como Pendiente</a>
+                        {% endif %}
+                    </li>
+                    {% endif %}
+                {% else %}
+                    <li>No hay tareas disponibles en esta categoría</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No hay categorías definidas.</p>
+        {% endfor %}
+    </div>
 </body>
 <style>
 

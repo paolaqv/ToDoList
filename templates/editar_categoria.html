@@ -1,42 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Agregar Tarea</title>
+    <meta charset="UTF-8">
+    <title>Editar Categoría</title>
 </head>
 <body>
-<form action="/tarea/nueva" method="post">
-    <h2>Agregar Tarea</h2>
-    <div>
-      <label for="descripcion">Descripción:</label>
-      <input type="text" id="descripcion" name="descripcion" required>
-    </div>
-    <div>
-      <label for="fecha_inicio">Fecha Inicio:</label>
-      <input type="date" id="fecha_inicio" name="fecha_inicio" required>
-    </div>
-    <div>
-        <label for="fecha_fin">Fecha fin:</label>
-        <input type="date" id="fecha_fin" name="fecha_fin" required>
-      </div>
-    <div>
-      <label for="categoria_id">Categoría:</label>
-      <select id="categoria_id" name="categoria_id">
-        {% for categoria in categorias %}
-        <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div>
-      <label for="estado_id">Estado:</label>
-      <select id="estado_id" name="estado_id">
-        <option value="1">Pendiente</option>
-        <option value="2">En progreso</option>
-      </select>
-    </div>
-    <button type="submit">Agregar Tarea</button>
-  </form>
-</body>  
-
+    <h1>Editar Categoría</h1>
+    <form method="post">
+        <label for="nombre">Nombre de la categoría:</label>
+        <input type="text" id="nombre" name="nombre" value="{{ categoria.nombre }}" required>
+        <button type="submit">Guardar Cambios</button>
+    </form>
+    <a href="/categorias">Cancelar</a>
+</body>
 <style>
     body {
         font-family: 'Arial', sans-serif;
@@ -73,7 +49,7 @@
     input[type=text],
     input[type=date],
     input[type=submit],
-    a {
+    a.button-cancel {
         width: 100%;
         padding: 8px;
         margin-top: 8px;
@@ -91,18 +67,19 @@
     }
 
     input[type=submit]:hover,
-    a:hover {
-        background-color: #92d9de;
+    a.button-cancel:hover {
+        background-color: #92c9b1;
     }
 
-    a {
-        font-weight: bold;
+    a.button-cancel {
         text-align: center;
-        display: inline-block;
+        display: block; 
         text-decoration: none;
         background-color: #e9e9e9;
         color: #333;
         margin-top: 13px;
+        padding: 8px;
+        font-weight: bold;
     }
 </style>
 </html>

@@ -1,5 +1,6 @@
-from app import app
+from app import app, db
+from app.modelos import Usuario, Categoria, Estado, RegistroTarea
 
 if __name__ == '__main__':
+   
     app.run(debug=True)
-#from app import routes
